@@ -8,23 +8,36 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.hootsuite.nachos.NachoTextView;
+import com.hootsuite.nachos.chip.Chip;
+import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private Dialog dialog;
-    private EditText editTextHeure;
+    private EditText editTextHeure, editTextLieu, editTextSujet;
+    private Button ajouter;
+    NachoTextView nachoParticipants;
+    static RecyclerView recyclerView;
+    private RecyclerView.Adapter adapter;
+    static List<Evenement> evenements;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
         dialog = new Dialog(this);
         dialog.setContentView(R.layout.popup);
+
+        recyclerView = (RecyclerView) findViewById(R.id.rcEvenements);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        evenements = new ArrayList<>();
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +91,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void showPopup(){
 
+        nachoParticipants = (NachoTextView) dialog.findViewById(R.id.nachoParticipants);
+        nachoParticipants.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
+        nachoParticipants.enableEditChipOnTouch(false, true);
+
         editTextHeure = (EditText) dialog.findViewById(R.id.editTextHeure);
+        editTextLieu = (EditText) dialog.findViewById(R.id.editTextLieu);
+        editTextSujet = (EditText) dialog.findViewById(R.id.editTextSujet);
+        ajouter = (Button) dialog.findViewById(R.id.button);
 
         editTextHeure.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +115,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }, currentHour, currentMinute, false);
                 timePickerDialog.show();
+            }
+        });
+
+        ajouter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                List<String> allNachos = new ArrayList<>();
+                String listString = "";
+
+                // Iterate over all of the chips in the NachoTextView
+                for (Chip chip : nachoParticipants.getAllChips()) {
+                    // Do something with the text of each chip
+                    CharSequence text = chip.getText();
+                    allNachos.add(text.toString());
+                    listString = String.join(", ", allNachos);
+                }
+
+                Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getText().toString(), editTextSujet.getText().toString(), listString);
+
+                evenements.add(nouvelEvenement);
+                adapter = new MyEvenementAdapter(evenements, getBaseContext());
+                recyclerView.setAdapter(adapter);
+
+                editTextHeure.setText("");
+                editTextLieu.setText("");
+                editTextSujet.setText("");
+                nachoParticipants.setText("");
+                dialog.dismiss();
             }
         });
 
