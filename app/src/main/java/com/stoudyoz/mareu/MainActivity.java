@@ -1,7 +1,9 @@
 package com.stoudyoz.mareu;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,7 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SortedList;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +31,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     static RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     static List<Evenement> evenements;
+    private Activity context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        context = MainActivity.this;
 
         dialog = new Dialog(this);
         dialog.setContentView(R.layout.popup);
@@ -80,13 +90,35 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_date) {
             Toast.makeText(this, "Trier par date", Toast.LENGTH_SHORT).show();
+            sortByDate();
             return true;
         } else if (id == R.id.action_lieu) {
             Toast.makeText(this, "Trier par lieu", Toast.LENGTH_SHORT).show();
+            sortByLieu();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sortByDate() {
+        Collections.sort(evenements, new Comparator<Evenement>() {
+            @Override
+            public int compare(Evenement o1, Evenement o2) {
+                return o1.getTime().compareTo(o2.getTime());
+            }
+        });
+        adapter.notifyDataSetChanged();
+    }
+
+    private void sortByLieu() {
+        Collections.sort(evenements, new Comparator<Evenement>() {
+            @Override
+            public int compare(Evenement o1, Evenement o2) {
+                return o1.getLieu().compareTo(o2.getLieu());
+            }
+        });
+        adapter.notifyDataSetChanged();
     }
 
     public void showPopup(){
@@ -111,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
-                        editTextHeure.setText(hourOfDay + "h" + minutes);
+                        editTextHeure.setText(checkDigit(hourOfDay) + "h" + checkDigit(minutes));
                     }
                 }, currentHour, currentMinute, false);
                 timePickerDialog.show();
@@ -122,28 +154,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                List<String> allNachos = new ArrayList<>();
-                String listString = "";
+                if (TextUtils.isEmpty(editTextHeure.getText()) || TextUtils.isEmpty(editTextLieu.getText()) || TextUtils.isEmpty(editTextSujet.getText()) || TextUtils.isEmpty(nachoParticipants.getText()))
+                    Toast.makeText(MainActivity.this, "Veuillez remplir touts les champs", Toast.LENGTH_SHORT).show();
+                else {
+                    List<String> allNachos = new ArrayList<>();
+                    String listString = "";
 
-                // Iterate over all of the chips in the NachoTextView
-                for (Chip chip : nachoParticipants.getAllChips()) {
-                    // Do something with the text of each chip
-                    CharSequence text = chip.getText();
-                    allNachos.add(text.toString());
-                    listString = String.join(", ", allNachos);
+                    // Iterate over all of the chips in the NachoTextView
+                    for (Chip chip : nachoParticipants.getAllChips()) {
+                        // Do something with the text of each chip
+                        CharSequence text = chip.getText();
+                        allNachos.add(text.toString());
+                        listString = String.join(", ", allNachos);
+                    }
+
+                    Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getText().toString(), editTextSujet.getText().toString(), listString);
+
+                    evenements.add(nouvelEvenement);
+                    adapter = new MyEvenementAdapter(evenements, context);
+                    recyclerView.setAdapter(adapter);
+
+                    editTextHeure.setText("");
+                    editTextLieu.setText("");
+                    editTextSujet.setText("");
+                    nachoParticipants.setText("");
+                    dialog.dismiss();
                 }
-
-                Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getText().toString(), editTextSujet.getText().toString(), listString);
-
-                evenements.add(nouvelEvenement);
-                adapter = new MyEvenementAdapter(evenements, getBaseContext());
-                recyclerView.setAdapter(adapter);
-
-                editTextHeure.setText("");
-                editTextLieu.setText("");
-                editTextSujet.setText("");
-                nachoParticipants.setText("");
-                dialog.dismiss();
             }
         });
 
@@ -151,5 +187,9 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    //AJOUTE LE 0 AVANT L'HEURE SI BESOIN
+    public String checkDigit(int number) {
+        return number <= 9 ? "0" + number : String.valueOf(number);
+    }
 
 }
