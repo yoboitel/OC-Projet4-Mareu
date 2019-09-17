@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/popupLayout"
-    android:layout_width="300dp"
-    android:layout_height="350dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical"
-    android:background="@drawable/popup_background">
+    android:background="@drawable/popup_background"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView"
@@ -15,21 +15,6 @@
         android:paddingTop="10dp"
         android:text="Votre réunion"
         android:textSize="24sp" />
-
-    <EditText
-        android:clickable="false"
-        android:cursorVisible="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:id="@+id/editTextHeure"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:ems="10"
-        android:hint="Heure"
-        android:inputType="time" />
 
     <EditText
         android:id="@+id/editTextLieu"
@@ -53,6 +38,21 @@
         android:hint="Sujet"
         android:inputType="textPersonName" />
 
+    <EditText
+        android:id="@+id/editTextHeure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:ems="10"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:hint="Heure"
+        android:inputType="time" />
+
     <com.hootsuite.nachos.NachoTextView
         android:id="@+id/nachoParticipants"
         android:layout_width="match_parent"
@@ -60,18 +60,19 @@
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         android:hint="Participants"
-        android:singleLine="true"
-        android:inputType="textEmailAddress"/>
+        android:inputType="textEmailAddress"
+        android:singleLine="true" />
 
     <Button
         android:id="@+id/button"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
+        android:layout_marginBottom="7.5dp"
         android:backgroundTint="@color/colorAccent"
+        android:gravity="center"
         android:text="+"
         android:textColor="@android:color/white"
-        android:textSize="24dp"
-        android:gravity="center"/>
+        android:textSize="24dp" />
 </LinearLayout>
