@@ -130,11 +130,14 @@ public class MainActivity extends AppCompatActivity {
         nachoParticipants.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
         nachoParticipants.enableEditChipOnTouch(false, true);
 
+        nachoParticipants.setText("participant@lamzone.com");
         editTextHeure = dialog.findViewById(R.id.editTextHeure);
         editTextLieu = dialog.findViewById(R.id.editTextLieu);
+        editTextLieu.setText("A");
         editTextSujet = dialog.findViewById(R.id.editTextSujet);
+        editTextSujet.setText("Sujet");
         ajouter = dialog.findViewById(R.id.button);
-
+        editTextHeure.setText("00h00");
         editTextHeure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 timePickerDialog.show();
             }
         });
-        
+
         ajouter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
