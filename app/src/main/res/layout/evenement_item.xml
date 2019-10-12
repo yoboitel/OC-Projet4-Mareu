@@ -39,7 +39,8 @@
             android:maxLines="1"
             android:text="maxime@lamzone.com, alex@lamzone.com"
             android:textColor="#494949"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            />
     </LinearLayout>
 
     <ImageView

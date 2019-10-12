@@ -8,11 +8,13 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -21,22 +23,31 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.borax12.materialdaterangepicker.time.RadialPickerLayout;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.hootsuite.nachos.NachoTextView;
 import com.hootsuite.nachos.chip.Chip;
 import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private Dialog dialog;
-    private EditText editTextHeure, editTextLieu, editTextSujet;
+    private Spinner editTextLieu;
+    private EditText editTextHeure, editTextSujet;
     private Button ajouter;
     NachoTextView nachoParticipants;
     static RecyclerView recyclerView;
@@ -83,44 +94,75 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_date) {
-            sortByDate();
+            //If user pick date filter
+            if (!(evenements.isEmpty())) {
+                BottomSheetDate bottomSheetdate = new BottomSheetDate();
+                bottomSheetdate.show(getSupportFragmentManager(), "BottomSheet");
+            }
+
             return true;
         } else if (id == R.id.action_lieu) {
-            sortByLieu();
+            //If user pick lieu filter
+            if (!(evenements.isEmpty())) {
+                BottomSheetLieu bottomSheetlieu = new BottomSheetLieu();
+                bottomSheetlieu.show(getSupportFragmentManager(), "BottomSheet");
+            }
+
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    private void sortByDate() {
+    public void filterByLieu(String salle) {
 
-        if (!(evenements.isEmpty())) {
-
-            Collections.sort(evenements, new Comparator<Evenement>() {
-                @Override
-                public int compare(Evenement o1, Evenement o2) {
-                    return o1.getTime().compareTo(o2.getTime());
-                }
-            });
-            adapter.notifyDataSetChanged();
+            //On crée une liste avec seulement les réunions correspondant au filtre appliqué
+            List<Evenement> ListeFiltreeParLieu = new ArrayList<>();
+            for (Evenement evenement : evenements) {
+                if (evenement.getLieu().equals(salle))
+                    ListeFiltreeParLieu.add(evenement);
+            }
+            adapter = new MyEvenementAdapter(ListeFiltreeParLieu, context);
+            recyclerView.setAdapter(adapter);
         }
+
+    public void filterByDate(String minTimeFromPicker, String maxTimeFromPicker) {
+
+        //On crée une liste avec seulement les réunions correspondant au filtre appliqué
+        List<Evenement> ListeFiltreeParDate = new ArrayList<>();
+
+        DateFormat dateFormat = new SimpleDateFormat("hh'h'mm");
+
+        Date minDate, maxDate, dateEvenement;
+
+        try{
+        minDate = dateFormat.parse(minTimeFromPicker);
+        maxDate = dateFormat.parse(maxTimeFromPicker);
+
+        Log.d("avancement", "minFormat " + minDate + " et maxFormat" + maxDate);
+
+        for (Evenement evenement : evenements) {
+
+
+            dateEvenement = dateFormat.parse(evenement.getTime());
+
+
+            if (dateEvenement.equals(minDate) || dateEvenement.equals(maxDate) || (dateEvenement.after(minDate) && dateEvenement.before(maxDate))) {
+                ListeFiltreeParDate.add(evenement);
+            }
+
+        }
+    }catch (ParseException e) {
+            e.printStackTrace();
+            Log.d("avancement", "fock");
+        }
+
+        adapter = new MyEvenementAdapter(ListeFiltreeParDate, context);
+        recyclerView.setAdapter(adapter);
     }
 
-    private void sortByLieu() {
-
-        if (!(evenements.isEmpty())) {
-
-            Collections.sort(evenements, new Comparator<Evenement>() {
-                @Override
-                public int compare(Evenement o1, Evenement o2) {
-                    return o1.getLieu().compareTo(o2.getLieu());
-                }
-            });
-            adapter.notifyDataSetChanged();
-
-        }
-
+    public void removeFilter(){
+        adapter = new MyEvenementAdapter(evenements, context);
+        recyclerView.setAdapter(adapter);
     }
 
     //GERE LA POPUP
@@ -130,14 +172,10 @@ public class MainActivity extends AppCompatActivity {
         nachoParticipants.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
         nachoParticipants.enableEditChipOnTouch(false, true);
 
-        nachoParticipants.setText("participant@lamzone.com");
         editTextHeure = dialog.findViewById(R.id.editTextHeure);
         editTextLieu = dialog.findViewById(R.id.editTextLieu);
-        editTextLieu.setText("A");
         editTextSujet = dialog.findViewById(R.id.editTextSujet);
-        editTextSujet.setText("Sujet");
         ajouter = dialog.findViewById(R.id.button);
-        editTextHeure.setText("00h00");
         editTextHeure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
                         editTextHeure.setText(checkDigit(hourOfDay) + "h" + checkDigit(minutes));
                     }
-                }, currentHour, currentMinute, false);
+                }, currentHour, currentMinute, true);
                 timePickerDialog.show();
             }
         });
@@ -159,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         ajouter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (TextUtils.isEmpty(editTextHeure.getText()) || TextUtils.isEmpty(editTextLieu.getText()) || TextUtils.isEmpty(editTextSujet.getText()) || TextUtils.isEmpty(nachoParticipants.getText()))
+                if (TextUtils.isEmpty(editTextHeure.getText()) || TextUtils.isEmpty(editTextSujet.getText()) || TextUtils.isEmpty(nachoParticipants.getText()))
                     Toast.makeText(MainActivity.this, "Veuillez remplir touts les champs", Toast.LENGTH_SHORT).show();
                 else {
                     List<String> allNachos = new ArrayList<>();
@@ -172,13 +210,17 @@ public class MainActivity extends AppCompatActivity {
                             listString = String.join(", ", allNachos);
                         }
                     }
-                    Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getText().toString(), editTextSujet.getText().toString(), listString);
+                    //If user forget to add a space to transform his text in chip, it's still added in the reunion informations
+                    if (nachoParticipants.getAllChips().isEmpty() && (!(nachoParticipants.getText().toString().isEmpty()))){
+                        listString = nachoParticipants.getText().toString();
+                    }
+
+                    Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getSelectedItem().toString(), editTextSujet.getText().toString(), listString);
 
                     evenements.add(nouvelEvenement);
                     adapter = new MyEvenementAdapter(evenements, context);
                     recyclerView.setAdapter(adapter);
                     editTextHeure.setText("");
-                    editTextLieu.setText("");
                     editTextSujet.setText("");
                     nachoParticipants.setText("");
                     dialog.dismiss();
@@ -193,5 +235,4 @@ public class MainActivity extends AppCompatActivity {
     public String checkDigit(int number) {
         return number <= 9 ? "0" + number : String.valueOf(number);
     }
-
 }

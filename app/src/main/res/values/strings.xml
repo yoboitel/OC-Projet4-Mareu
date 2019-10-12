@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Ma réu</string>
     <string name="action_settings">Settings</string>
+
+    <string-array name="spinner_values">
+        <item>Peach</item>
+        <item>Mario</item>
+        <item>Luigi</item>
+    </string-array>
+
 </resources>

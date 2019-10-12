@@ -2,6 +2,8 @@ package com.stoudyoz.mareu;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentProvider;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +42,7 @@ public class MyEvenementAdapter extends RecyclerView.Adapter<MyEvenementAdapter.
 
         final Evenement evenement = evenements.get(position);
 
-        holder.tvGras.setText("Réunion " + evenement.getLieu() + " - " + evenement.getTime() + " - " + evenement.getSujet());
+        holder.tvGras.setText("Réunion " + evenement.getSujet() + " - " + evenement.getTime() + " - " + evenement.getLieu());
         holder.tvParticipant.setText(evenement.getParticipants());
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,30 +51,6 @@ public class MyEvenementAdapter extends RecyclerView.Adapter<MyEvenementAdapter.
                 MainActivity.recyclerView.setAdapter(new MyEvenementAdapter((MainActivity.evenements), context));
             }
         });
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                alertDialog.setTitle("Participants");
-
-                String TextParticipants = evenements.get(position).getParticipants();
-                String textRemplace = TextParticipants.replace(",", "\n");
-                String textRemplace2 = textRemplace.replace(" ", "");
-
-                alertDialog.setMessage(textRemplace2);
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                alertDialog.show();
-
-            }
-        });
-
     }
 
     @Override

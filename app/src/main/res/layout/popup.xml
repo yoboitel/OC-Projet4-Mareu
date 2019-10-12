@@ -13,19 +13,10 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="10dp"
-        android:text="Votre réunion"
-        android:textSize="24sp" />
-
-    <EditText
-        android:id="@+id/editTextLieu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:ems="10"
-        android:hint="Lieu"
-        android:inputType="textPersonName" />
+        android:text="Ma réunion"
+        android:textColor="@color/colorAccent"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/editTextSujet"
@@ -36,7 +27,8 @@
         android:layout_marginEnd="15dp"
         android:ems="10"
         android:hint="Sujet"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:textSize="16sp" />
 
     <EditText
         android:id="@+id/editTextHeure"
@@ -51,7 +43,16 @@
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:hint="Heure"
-        android:inputType="time" />
+        android:inputType="time"
+        android:textSize="16sp" />
+
+    <Spinner
+        android:id="@+id/editTextLieu"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="15dp"
+        android:entries="@array/spinner_values" />
 
     <com.hootsuite.nachos.NachoTextView
         android:id="@+id/nachoParticipants"
@@ -61,7 +62,8 @@
         android:layout_marginEnd="15dp"
         android:hint="Participants"
         android:inputType="textEmailAddress"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textSize="16sp" />
 
     <Button
         android:id="@+id/button"
