@@ -5,11 +5,11 @@
     <item
         android:id="@+id/action_date"
         android:orderInCategory="100"
-        android:title="Date Filter"
+        android:title="Filtrer par date"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_lieu"
         android:orderInCategory="100"
-        android:title="Room Filter"
+        android:title="Filtrer par lieu"
         app:showAsAction="never" />
 </menu>
