@@ -111,15 +111,15 @@ public class MainActivity extends AppCompatActivity {
     //Gere le filtre de réunion par lieu
     public void filterByLieu(String salle) {
 
-            //On crée une liste dans laquelle on ajoute seulement les réunions correspondant au filtre appliqué
-            List<Evenement> ListeFiltreeParLieu = new ArrayList<>();
-            for (Evenement evenement : evenements) {
-                if (evenement.getLieu().equals(salle))
-                    ListeFiltreeParLieu.add(evenement);
-            }
-            adapter = new MyEvenementAdapter(ListeFiltreeParLieu, context);
-            recyclerView.setAdapter(adapter);
+        //On crée une liste dans laquelle on ajoute seulement les réunions correspondant au filtre appliqué
+        List<Evenement> ListeFiltreeParLieu = new ArrayList<>();
+        for (Evenement evenement : evenements) {
+            if (evenement.getLieu().equals(salle))
+                ListeFiltreeParLieu.add(evenement);
         }
+        adapter = new MyEvenementAdapter(ListeFiltreeParLieu, context);
+        recyclerView.setAdapter(adapter);
+    }
 
     //Gere le filtre de réunion par date
     public void filterByDate(Context contextfromfrag, String minTimeFromPicker, String maxTimeFromPicker) {
@@ -132,35 +132,35 @@ public class MainActivity extends AppCompatActivity {
 
         Date minDate, maxDate, dateEvenement;
 
-        try{
-        minDate = dateFormat.parse(minTimeFromPicker);
-        maxDate = dateFormat.parse(maxTimeFromPicker);
+        try {
+            minDate = dateFormat.parse(minTimeFromPicker);
+            maxDate = dateFormat.parse(maxTimeFromPicker);
 
-        //Si l'heure max et inférieur à l'heure min
-        if (maxDate.before(minDate)){
-            Toast.makeText(contextfromfrag, "L'heure maximum doit être supérieur au minimum", Toast.LENGTH_SHORT).show();
-        } else {
+            //Si l'heure max et inférieur à l'heure min
+            if (maxDate.before(minDate)) {
+                Toast.makeText(contextfromfrag, "L'heure maximum doit être supérieur au minimum", Toast.LENGTH_SHORT).show();
+            } else {
 
-        //On boucle dans la liste de réunions
-        for (Evenement evenement : evenements) {
-            //On transforme la date en string de la réunion en Date
-            dateEvenement = dateFormat.parse(evenement.getTime());
-            //On garde celles inclusent dans la plage horaire
-            if (dateEvenement.equals(minDate) || dateEvenement.equals(maxDate) || (dateEvenement.after(minDate) && dateEvenement.before(maxDate))) {
-                ListeFiltreeParDate.add(evenement);
+                //On boucle dans la liste de réunions
+                for (Evenement evenement : evenements) {
+                    //On transforme la date en string de la réunion en Date
+                    dateEvenement = dateFormat.parse(evenement.getTime());
+                    //On garde celles inclusent dans la plage horaire
+                    if (dateEvenement.equals(minDate) || dateEvenement.equals(maxDate) || (dateEvenement.after(minDate) && dateEvenement.before(maxDate))) {
+                        ListeFiltreeParDate.add(evenement);
+                    }
+                }
+
+                adapter = new MyEvenementAdapter(ListeFiltreeParDate, context);
+                recyclerView.setAdapter(adapter);
             }
-        }
-
-        adapter = new MyEvenementAdapter(ListeFiltreeParDate, context);
-        recyclerView.setAdapter(adapter);
-        }
-    }catch (ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
 
     //Reset le filtre de réunion
-    public void removeFilter(){
+    public void removeFilter() {
         adapter = new MyEvenementAdapter(evenements, context);
         recyclerView.setAdapter(adapter);
     }
@@ -183,18 +183,7 @@ public class MainActivity extends AppCompatActivity {
         editTextHeure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Calendar calendar = Calendar.getInstance();
-                int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-                int currentMinute = calendar.get(Calendar.MINUTE);
-
-                TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
-                        editTextHeure.setText(checkDigit(hourOfDay) + "h" + checkDigit(minutes));
-                    }
-                }, currentHour, currentMinute, true);
-                timePickerDialog.show();
+                onClickEditText();
             }
         });
 
@@ -202,42 +191,59 @@ public class MainActivity extends AppCompatActivity {
         ajouter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                //Vérifie que toute les informations d'une réunion sont remplies
-                if (TextUtils.isEmpty(editTextHeure.getText()) || TextUtils.isEmpty(editTextSujet.getText()) || TextUtils.isEmpty(nachoParticipants.getText()))
-                    Toast.makeText(MainActivity.this, "Veuillez remplir touts les champs", Toast.LENGTH_SHORT).show();
-                else {
-
-                    List<String> allNachos = new ArrayList<>();
-                    String listString = "";
-                    //On ajoute toutes les chips dans une liste
-                    for (Chip chip : nachoParticipants.getAllChips()) {
-                        CharSequence text = chip.getText();
-                        allNachos.add(text.toString());
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            listString = String.join(", ", allNachos);
-                        }
-                    }
-                    //Si l'user ajoute un participants sans appuyer sur espace pour le transformer en chip, on l'ajoute quand même
-                    if (nachoParticipants.getAllChips().isEmpty() && (!(nachoParticipants.getText().toString().isEmpty()))){
-                        listString = nachoParticipants.getText().toString();
-                    }
-
-                    //On crée l'objet de la réunion avec les informations
-                    Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getSelectedItem().toString(), editTextSujet.getText().toString(), listString);
-
-                    evenements.add(nouvelEvenement);
-                    adapter = new MyEvenementAdapter(evenements, context);
-                    recyclerView.setAdapter(adapter);
-                    editTextHeure.setText("");
-                    editTextSujet.setText("");
-                    nachoParticipants.setText("");
-                    dialog.dismiss();
-                }
+                onClickButtonAjoutReunion();
             }
         });
         Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
+    }
+
+    public void onClickEditText(){
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
+                editTextHeure.setText(checkDigit(hourOfDay) + "h" + checkDigit(minutes));
+            }
+        }, currentHour, currentMinute, true);
+        timePickerDialog.show();
+    }
+
+    public void onClickButtonAjoutReunion(){
+        //Vérifie que toute les informations d'une réunion sont remplies
+        if (TextUtils.isEmpty(editTextHeure.getText()) || TextUtils.isEmpty(editTextSujet.getText()) || TextUtils.isEmpty(nachoParticipants.getText()))
+            Toast.makeText(MainActivity.this, "Veuillez remplir touts les champs", Toast.LENGTH_SHORT).show();
+        else {
+
+            List<String> allNachos = new ArrayList<>();
+            String listString = "";
+            //On ajoute toutes les chips dans une liste
+            for (Chip chip : nachoParticipants.getAllChips()) {
+                CharSequence text = chip.getText();
+                allNachos.add(text.toString());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    listString = String.join(", ", allNachos);
+                }
+            }
+            //Si l'user ajoute un participants sans appuyer sur espace pour le transformer en chip, on l'ajoute quand même
+            if (nachoParticipants.getAllChips().isEmpty() && (!(nachoParticipants.getText().toString().isEmpty()))) {
+                listString = nachoParticipants.getText().toString();
+            }
+
+            //On crée l'objet de la réunion avec les informations
+            Evenement nouvelEvenement = new Evenement(editTextHeure.getText().toString(), editTextLieu.getSelectedItem().toString(), editTextSujet.getText().toString(), listString);
+            //On ajoute l'objet crée à la liste d'evenements
+            evenements.add(nouvelEvenement);
+            adapter = new MyEvenementAdapter(evenements, context);
+            recyclerView.setAdapter(adapter);
+            editTextHeure.setText("");
+            editTextSujet.setText("");
+            nachoParticipants.setText("");
+            dialog.dismiss();
+        }
     }
 
     //Ajoute un 0 devant l'heure du DatePicker si necéssaire

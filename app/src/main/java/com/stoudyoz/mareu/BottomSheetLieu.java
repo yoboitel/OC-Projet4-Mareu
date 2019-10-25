@@ -24,12 +24,13 @@ public class BottomSheetLieu extends BottomSheetDialogFragment {
 
         View v = inflater.inflate(R.layout.bottomsheet_filtre_lieu, container, false);
 
+        final MainActivity mainActivity = new MainActivity();
+
         //Filtre par salle Peach
         Button buttonPeach = v.findViewById(R.id.buttonSallePeach);
         buttonPeach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity mainActivity = new MainActivity();
                 mainActivity.filterByLieu("Peach");
                 BottomSheetLieu.this.dismiss();
             }
@@ -40,7 +41,6 @@ public class BottomSheetLieu extends BottomSheetDialogFragment {
         buttonMario.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity mainActivity = new MainActivity();
                 mainActivity.filterByLieu("Mario");
                 BottomSheetLieu.this.dismiss();
             }
@@ -51,7 +51,6 @@ public class BottomSheetLieu extends BottomSheetDialogFragment {
         buttonLuigi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity mainActivity = new MainActivity();
                 mainActivity.filterByLieu("Luigi");
                 BottomSheetLieu.this.dismiss();
             }
@@ -62,12 +61,10 @@ public class BottomSheetLieu extends BottomSheetDialogFragment {
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity mainActivity = new MainActivity();
                 mainActivity.removeFilter();
                 BottomSheetLieu.this.dismiss();
             }
         });
-        
         return v;
     }
 }

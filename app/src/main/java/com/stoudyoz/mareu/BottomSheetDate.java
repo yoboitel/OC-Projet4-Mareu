@@ -22,6 +22,12 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class BottomSheetDate extends BottomSheetDialogFragment {
 
+    private View v;
+    private TextView tvPickerMin, tvPickerMax;
+    private int currentHour, currentMinute;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,20 +39,20 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.bottomsheet_filtre_date, container, false);
+        v = inflater.inflate(R.layout.bottomsheet_filtre_date, container, false);
 
         //Initialisation Textviews
-        final TextView tvPickerMin = v.findViewById(R.id.tvMinTime);
-        final TextView tvPickerMax = v.findViewById(R.id.tvMaxTime);
+        tvPickerMin = v.findViewById(R.id.tvMinTime);
+        tvPickerMax = v.findViewById(R.id.tvMaxTime);
 
         //Initialisation DatePicker
         Calendar calendar = Calendar.getInstance();
-        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-        int currentMinute = calendar.get(Calendar.MINUTE);
+        currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        currentMinute = calendar.get(Calendar.MINUTE);
 
         //Initialisation SharedPreferences
-        final SharedPreferences.Editor editor = getActivity().getSharedPreferences("test", MODE_PRIVATE).edit();
-        final SharedPreferences prefs = getActivity().getSharedPreferences("test", MODE_PRIVATE);
+        editor = getActivity().getSharedPreferences("test", MODE_PRIVATE).edit();
+        prefs = getActivity().getSharedPreferences("test", MODE_PRIVATE);
 
         //Récupère la valeur du min en cache si l'user l'a déja choisi
         String timeMinFromCache = prefs.getString("timeMin", "minimum");
@@ -56,22 +62,20 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
         String timeMaxFromCache = prefs.getString("timeMax", "maximum");
         tvPickerMax.setText(timeMaxFromCache);
 
-        //DatePicker Minimum
-        final android.app.TimePickerDialog timePickerDialogMin = new android.app.TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
+        //Gère le TimePicker pour l'heure min
+        onTimePickerMinChoosed();
+        //Gère le TimePicker pour l'heure max
+        onTimePickerMaxChoosed();
 
-                //Stock la valeur choisie en SharedPrefs
-                editor.putString("timeMin", checkDigit(hourOfDay) + "h" + checkDigit(minutes));
-                editor.apply();
+        //Gère le click sur le bouton filtrer
+        onClickButtonFiltrer();
+        //Gère le click sur le bouton reset
+        onClickButtonReset();
 
-                //Recupere la valeur Min en SharedPrefs
-                String timeMinFromCache = prefs.getString("timeMin", "minimum");
+        return v;
+    }
 
-                tvPickerMin.setText(timeMinFromCache);
-            }
-        }, currentHour, currentMinute, true);
-
+    private void onTimePickerMaxChoosed() {
         //DatePicker Maximum
         final android.app.TimePickerDialog timePickerDialogMax = new android.app.TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -88,6 +92,32 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
             }
         }, currentHour, currentMinute, true);
 
+
+        tvPickerMax.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timePickerDialogMax.show();
+            }
+        });
+    }
+
+    private void onTimePickerMinChoosed() {
+        //DatePicker Minimum
+        final android.app.TimePickerDialog timePickerDialogMin = new android.app.TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hourOfDay, int minutes) {
+
+                //Stock la valeur choisie en SharedPrefs
+                editor.putString("timeMin", checkDigit(hourOfDay) + "h" + checkDigit(minutes));
+                editor.apply();
+
+                //Recupere la valeur Min en SharedPrefs
+                String timeMinFromCache = prefs.getString("timeMin", "minimum");
+
+                tvPickerMin.setText(timeMinFromCache);
+            }
+        }, currentHour, currentMinute, true);
+
         //Affiche les DatePicker quand on click sur les textviews min et max
         tvPickerMin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,13 +125,9 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
                 timePickerDialogMin.show();
             }
         });
-        tvPickerMax.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timePickerDialogMax.show();
-            }
-        });
+    }
 
+    private void onClickButtonFiltrer() {
         //Gère le click sur le bouton filtrer
         Button buttonDateFilter = v.findViewById(R.id.buttonFiltrerDate);
         buttonDateFilter.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +145,9 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
                 }
             }
         });
+    }
 
+    private void onClickButtonReset() {
         //Gère le click sur le bouton reset
         Button resetDateFilter = v.findViewById(R.id.btnResetFromDateFilter);
         resetDateFilter.setOnClickListener(new View.OnClickListener() {
@@ -136,12 +164,10 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
                 editor.apply();
             }
         });
-
-        return v;
     }
 
     //AJOUTE LE 0 AVANT L'HEURE SI BESOIN
-    public String checkDigit(int number) {
+    private String checkDigit(int number) {
         return number <= 9 ? "0" + number : String.valueOf(number);
     }
 }
