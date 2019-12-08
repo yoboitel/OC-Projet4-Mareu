@@ -74,6 +74,8 @@ public class ExampleInstrumentedTest {
         checkIfAddReunionIsWorking();
         //Click sur les settings de la toolbar
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        //Attends 0.5s que la vue soit bien visible pour cliquer
+        Thread.sleep(500);
         //Click sur le menu pour filtrer par lieu
         onView(withText("Filtrer par lieu")).perform(click());
         //Attends 0.5s que la bottomsheet soit bien visible pour cliquer
@@ -84,6 +86,8 @@ public class ExampleInstrumentedTest {
         onView(ViewMatchers.withId(R.id.rcEvenements)).check(matches(hasChildCount(0)));
         //Click sur les settings de la toolbar
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        //Attends 0.5s que la vue soit bien visible pour cliquer
+        Thread.sleep(500);
         //Click sur le menu pour filtrer par lieu
         onView(withText("Filtrer par lieu")).perform(click());
         //Attends 0.5s que la bottomsheet soit bien visible pour cliquer
@@ -100,6 +104,8 @@ public class ExampleInstrumentedTest {
         checkIfAddReunionIsWorking();
         //Click sur les settings de la toolbar
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        //Attends 0.5s que la vue soit bien visible pour cliquer
+        Thread.sleep(500);
         //Click sur le menu pour filtrer par lieu
         onView(withText("Filtrer par date")).perform(click());
         //Attends 0.5s que la bottomsheet soit bien visible pour cliquer
@@ -118,6 +124,8 @@ public class ExampleInstrumentedTest {
         onView(ViewMatchers.withId(R.id.rcEvenements)).check(matches(hasChildCount(0)));
         //Click sur les settings de la toolbar
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        //Attends 0.5s que la vue soit bien visible pour cliquer
+        Thread.sleep(500);
         //Click sur le menu pour filtrer par date
         onView(withText("Filtrer par date")).perform(click());
         //Attends 0.5s que la bottomsheet soit bien visible pour cliquer

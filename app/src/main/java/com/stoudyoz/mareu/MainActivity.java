@@ -109,33 +109,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Gere le filtre de réunion par lieu
-    public void filterByLieu(String salle) {
+    public void filtreParLieuPlusReload(String salle) {
+        //APPELLE LA METHODE POUR AFFICHER LE RESULTAT DE LA METHODE FILTREE
+        reload(filtreByLieu(salle, evenements));
+    }
 
-        //On crée une liste dans laquelle on ajoute seulement les réunions correspondant au filtre appliqué
+    public void filtreParDatePlusReload(Context contextfromfrag, String minTimeFromPicker, String maxTimeFromPicker){
+        reload(filterByDate(contextfromfrag, minTimeFromPicker, maxTimeFromPicker, evenements));
+    }
+
+    public List<Evenement> filtreByLieu(String salle, List<Evenement> evenements){
         List<Evenement> ListeFiltreeParLieu = new ArrayList<>();
+
         for (Evenement evenement : evenements) {
             if (evenement.getLieu().equals(salle))
                 ListeFiltreeParLieu.add(evenement);
         }
-        adapter = new MyEvenementAdapter(ListeFiltreeParLieu, context);
-        recyclerView.setAdapter(adapter);
+        return ListeFiltreeParLieu;
     }
 
     //Gere le filtre de réunion par date
-    public void filterByDate(Context contextfromfrag, String minTimeFromPicker, String maxTimeFromPicker) {
+    public List<Evenement> filterByDate(Context contextfromfrag, String minTimeFromPicker, String maxTimeFromPicker, List<Evenement> evenements) {
 
         //On crée une liste dans laquelle on ajoute seulement les réunions inclusent dans la plage horaire du filtre
         List<Evenement> ListeFiltreeParDate = new ArrayList<>();
 
         //On transforme la string en Date pour pouvoir comparer
-        DateFormat dateFormat = new SimpleDateFormat("hh'h'mm");
+        DateFormat dateFormat = new SimpleDateFormat("HH'h'mm");
 
         Date minDate, maxDate, dateEvenement;
 
         try {
             minDate = dateFormat.parse(minTimeFromPicker);
             maxDate = dateFormat.parse(maxTimeFromPicker);
-
             //Si l'heure max et inférieur à l'heure min
             if (maxDate.before(minDate)) {
                 Toast.makeText(contextfromfrag, "L'heure maximum doit être supérieur au minimum", Toast.LENGTH_SHORT).show();
@@ -149,14 +155,19 @@ public class MainActivity extends AppCompatActivity {
                     if (dateEvenement.equals(minDate) || dateEvenement.equals(maxDate) || (dateEvenement.after(minDate) && dateEvenement.before(maxDate))) {
                         ListeFiltreeParDate.add(evenement);
                     }
+                    //Log.d("VALOR", "Liste : " + ListeFiltreeParDate);
                 }
-
-                adapter = new MyEvenementAdapter(ListeFiltreeParDate, context);
-                recyclerView.setAdapter(adapter);
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        return ListeFiltreeParDate;
+    }
+
+    //Actualise la reyclerview avec la liste filtree
+    public void reload(List<Evenement> ListeFiltree){
+        adapter = new MyEvenementAdapter(ListeFiltree, context);
+        recyclerView.setAdapter(adapter);
     }
 
     //Reset le filtre de réunion

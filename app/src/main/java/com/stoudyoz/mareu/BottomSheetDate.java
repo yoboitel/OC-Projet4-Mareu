@@ -3,6 +3,7 @@ package com.stoudyoz.mareu;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -140,7 +141,7 @@ public class BottomSheetDate extends BottomSheetDialogFragment {
                 else {
                     //Appelle la fonction du MainActivity pour filter par date en passant les deux valeurs en paramètres
                     MainActivity mainActivity = new MainActivity();
-                    mainActivity.filterByDate(getActivity(),tvPickerMin.getText().toString(), tvPickerMax.getText().toString());
+                    mainActivity.filtreParDatePlusReload(getActivity(),tvPickerMin.getText().toString(), tvPickerMax.getText().toString());
                     BottomSheetDate.this.dismiss();
                 }
             }
